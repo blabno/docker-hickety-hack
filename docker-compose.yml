@@ -1,0 +1,6 @@
+app:
+    image: my/app
+    expose:
+        - "8080"
+slave:
+    image: busybox

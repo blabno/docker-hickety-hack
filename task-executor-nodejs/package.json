@@ -1,0 +1,14 @@
+{
+  "name": "realskill-task-executor-nodejs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "slave.js",
+  "scripts": {
+    "start": "node slave.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.4.1"
+  }
+}
