@@ -1,7 +1,6 @@
 FROM readytalk/nodejs
 WORKDIR /app
 ENTRYPOINT ["/nodejs/bin/npm", "start"]
-#RUN npm install
+EXPOSE 8080
 ADD package.json /app/
-#CMD []
 ADD index.js /app/

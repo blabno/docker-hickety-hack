@@ -1,10 +1,14 @@
 var http = require('http');
 var fs = require('fs');
-//http.createServer(function (req, res) {
-//    res.writeHead(200, {'Content-Type': 'text/plain'});
-//    res.end('Hello');
-//}).listen(8080);
-//console.info('listening on port 8080');
+http.createServer(function (req, res) {
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end('Hello');
+}).listen(8080);
+console.info('listening on port 8080');
+
+/**
+ * Code below proves that container holds filesystem changes between restarts
+ */
 
 var i = 0;
 var maxI = process.env.i || 5;

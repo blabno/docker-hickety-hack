@@ -7,12 +7,36 @@ const Promise = require('bluebird');
 const mainExecutor = require('./mainExecutor');
 
 var tasks = {
+    a: {
+        stack: 'java'
+    },
+    b: {
+        id: 'b',
+        stack: 'nodejs',
+        services: ['redis'],
+        repository: 'http://gitmaster.realskill.io/b',
+        branch: 'task1b'
+    },
+    c: {
+        id: 'c',
+        stack: 'nodejs',
+        services: [],
+        repository: 'http://gitmaster.realskill.io/b',
+        branch: 'task1b'
+    },
     123: {
         id: 123,
         stack: 'nodejs',
         services: ['rabbitmq', 'elasticsearch'],
         repository: 'http://gitmaster.realskill.io/123',
         branch: 'task1'
+    },
+    456: {
+        id: 456,
+        stack: 'nodejs',
+        services: ['elasticsearch'],
+        repository: 'http://gitmaster.realskill.io/456456456',
+        branch: 'task6'
     }
 };
 function commitChanges() {
@@ -22,7 +46,7 @@ function commitChanges() {
 function getTask(id) {
     var task = tasks[id];
     if (!task) {
-        return Promise.reject('Task not found: ' + id);
+        return Promise.reject(Boom.notFound('Task not found: ' + id));
     }
     return Promise.resolve(task);
 }
@@ -41,7 +65,6 @@ server.route({
         }
     },
     handler: function (request, reply) {
-        console.log(JSON.stringify(request.payload, null, '  '));
         commitChanges(request.payload.paths).then(function () {
             return getTask(request.params.taskId);
         }).then(function (task) {

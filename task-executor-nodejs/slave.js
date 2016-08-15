@@ -2,6 +2,35 @@
 
 var Promise = require('bluebird');
 
+function rubishSimulation() {
+    console.log(require('fs').readFileSync('/etc/hosts').toString());
+
+    require('http').get({
+        hostname: 'elasticsearch',
+        port: 8080,
+        path: '/',
+        agent: false  // create a new agent just for this one request
+    }, function (res) {
+        res.on('data', function (data) {
+            console.log('data from elasticsearch:', data.toString());
+        })
+    }).on('error', function (e) {
+        console.log('cannot hit elasticsearch', e);
+    });
+    require('http').get({
+        hostname: 'rabbitmq',
+        port: 8080,
+        path: '/',
+        agent: false  // create a new agent just for this one request
+    }, function (res) {
+        res.on('data', function (data) {
+            console.log('data from rabbitmq:', data.toString());
+        })
+    }).on('error', function (e) {
+        console.log('cannot hit rabbitmq', e);
+    });
+}
+
 function checkIfSourceCodeAlreadyCloned() {
     console.log('Check if source code already cloned...');
     return Promise.resolve(Math.random() > .5);
@@ -19,6 +48,7 @@ function cloneOrigin() {
 
 function runTests() {
     console.info('Run tests...');
+    rubishSimulation();
     return Promise.delay(5000 * Math.random());
 }
 
@@ -37,7 +67,6 @@ function gatherReportsAndPostToTheBackend() {
     return Promise.resolve();
 }
 
-console.log(process.env);
 checkIfSourceCodeAlreadyCloned().then(function (sourceCodeAlreadyCloned) {
     if (sourceCodeAlreadyCloned) {
         return resetToRemoteBranch();
