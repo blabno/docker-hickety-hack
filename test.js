@@ -26,14 +26,15 @@ function hitBackend() {
     });
 }
 
-docker.listContainersAsync({all: 1}).then(function (result) {
-    //TODO also remove all container based on tas-executor-nodejs image
-    _.remove(result, function (item) {
-        return !_.some(['elasticsearch', 'rabbitmq'], function (serviceName) {
-            return -1 < item.Names.indexOf('/' + serviceName);
+docker.listContainersAsync({all: 1}).then(function (containers) {
+    _.remove(containers, function (container) {
+        var isBasedONTaskExecutorImage = 'realskill/task-executor-nodejs' === container.Image;
+        var isFakeService = _.some(['elasticsearch', 'rabbitmq'], function (serviceName) {
+            return -1 < container.Names.indexOf('/' + serviceName);
         });
+        return !(isBasedONTaskExecutorImage || isFakeService);
     });
-    return Promise.map(result, function (container) {
+    return Promise.map(containers, function (container) {
         return Promise.promisifyAll(docker.getContainer(container.Id)).removeAsync({force: 1});
     })
 }).then(hitBackend, function (err) {
