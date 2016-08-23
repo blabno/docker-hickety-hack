@@ -11,8 +11,8 @@ var stackToImageMap = {
     'nodejs': 'realskill/task-executor-nodejs'
 };
 var serviceToImageMap = {
-    'rabbitmq': 'my/app',
-    'elasticsearch': 'my/app'
+    'rabbitmq': 'realskill/fake-service',
+    'elasticsearch': 'realskill/fake-service'
 };
 
 function getImageByStack(stack) {

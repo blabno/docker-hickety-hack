@@ -1,6 +1,20 @@
-app:
-    image: my/app
-    expose:
-        - "8080"
-slave:
-    image: busybox
+version: '2'
+services:
+    backend:
+        build: ./backend
+        image: realskill/backend:latest
+        expose:
+            - "3000"
+        ports:
+             - "3000:3000"
+        volumes:
+             - /var/run:/var/run
+    fake-service:
+        build: ./fake-service
+        image: realskill/fake-service:latest
+        expose:
+            - "8080"
+    slave:
+        build: ./task-executor-nodejs
+        image: realskill/task-executor-nodejs:latest
+
