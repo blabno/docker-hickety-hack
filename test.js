@@ -3,9 +3,13 @@
 var $http = require('http-as-promised');
 const Promise = require('bluebird');
 var _ = require('lodash');
+var fs = require('fs');
 
 var Docker = require('dockerode');
-var docker = new Docker();
+var ca = process.env.CA && fs.readFileSync(process.env.CA);
+var cert = process.env.CERT && fs.readFileSync(process.env.CERT);
+var certKey = process.env.CERT_KEY && fs.readFileSync(process.env.CERT_KEY);
+var docker = new Docker({host: process.env.DOCKER_MANAGER_HOST, port: process.env.DOCKER_MANAGER_PORT, ca: ca, cert: cert, key: certKey});
 docker = Promise.promisifyAll(docker);
 
 
@@ -29,10 +33,8 @@ function hitBackend() {
 docker.listContainersAsync({all: 1}).then(function (containers) {
     _.remove(containers, function (container) {
         var isBasedONTaskExecutorImage = 'realskill/task-executor-nodejs' === container.Image;
-        var isFakeService = _.some(['elasticsearch', 'rabbitmq'], function (serviceName) {
-            return -1 < container.Names.indexOf('/' + serviceName);
-        });
-        return !(isBasedONTaskExecutorImage || isFakeService);
+        var isBasedONFakeServiceImage = 'realskill/fake-service' === container.Image;
+        return !(isBasedONTaskExecutorImage || isBasedONFakeServiceImage);
     });
     return Promise.map(containers, function (container) {
         return Promise.promisifyAll(docker.getContainer(container.Id)).removeAsync({force: 1});

@@ -8,7 +8,14 @@ services:
         ports:
              - "3000:3000"
         volumes:
-             - /var/run:/var/run
+            - $CERTS_DIR/:/certs
+        environment:
+            NODE_TLS_REJECT_UNAUTHORIZED: 0
+            DOCKER_HOST: $DOCKER_MANAGER_HOST
+            DOCKER_PORT: $DOCKER_MANAGER_PORT
+            CA: /certs/ca.pem
+            CERT: /certs/cert.pem
+            CERT_KEY: /certs/key.pem
     fake-service:
         build: ./fake-service
         image: realskill/fake-service:latest

@@ -3,8 +3,12 @@
 const Promise = require('bluebird');
 const _ = require('lodash');
 
+var fs = require('fs');
 var Docker = require('dockerode');
-var docker = new Docker();
+var ca = process.env.CA && fs.readFileSync(process.env.CA);
+var cert = process.env.CERT && fs.readFileSync(process.env.CERT);
+var certKey = process.env.CERT_KEY && fs.readFileSync(process.env.CERT_KEY);
+var docker = new Docker({host: process.env.DOCKER_HOST, port: process.env.DOCKER_PORT, ca: ca, cert: cert, key: certKey});
 docker = Promise.promisifyAll(docker);
 
 var stackToImageMap = {
