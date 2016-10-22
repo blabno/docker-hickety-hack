@@ -35,10 +35,9 @@ function getServiceImage(service) {
     return Promise.resolve(image);
 }
 
-function createAndStartServiceContainer(image, name) {
+function createAndStartServiceContainer(image) {
     return docker.createContainerAsync({
-        image: image,
-        name: name
+        image: image
     }).then(function (container) {
         return Promise.promisifyAll(container).startAsync().then(function () {
             return container.id;

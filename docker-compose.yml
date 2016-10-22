@@ -1,27 +1,37 @@
 version: '2'
 services:
-    backend:
-        build: ./backend
-        image: realskill/backend:latest
-        expose:
-            - "3000"
-        ports:
-             - "3000:3000"
-        volumes:
-            - $CERTS_DIR/:/certs
-        environment:
-            NODE_TLS_REJECT_UNAUTHORIZED: 0
-            DOCKER_HOST: $DOCKER_MANAGER_HOST
-            DOCKER_PORT: $DOCKER_MANAGER_PORT
-            CA: /certs/ca.pem
-            CERT: /certs/cert.pem
-            CERT_KEY: /certs/key.pem
-    fake-service:
-        build: ./fake-service
-        image: realskill/fake-service:latest
-        expose:
-            - "8080"
-    slave:
-        build: ./task-executor-nodejs
-        image: realskill/task-executor-nodejs:latest
-
+  consul:
+    image: progrium/consul
+    ports:
+      - "8500:8500"
+    command: -server -bootstrap
+  manager:
+    image: swarm
+    ports:
+      - "4000:4000"
+    command: manage -H :4000  --replication --advertise $DOCKER0_IP:4000 --engine-refresh-min-interval 5s --engine-refresh-max-interval 6s --heartbeat 5s consul://consul:8500
+    links:
+      - consul
+  agent:
+    image: swarm
+    command: join --advertise $DOCKER0_IP:2376 --delay 5s consul://consul:8500
+    links:
+      - consul
+      - manager
+  backend:
+    extends:
+      file: docker-compose-base.yml
+      service: backend
+    environment:
+      DOCKER_HOST: manager
+      DOCKER_PORT: 4000
+    links:
+      - manager
+  fake-service:
+    extends:
+      file: docker-compose-base.yml
+      service: fake-service
+  slave:
+    extends:
+      file: docker-compose-base.yml
+      service: slave

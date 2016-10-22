@@ -12,6 +12,25 @@ I assume you have `getip` script:
      fi
      ifconfig $1 | grep 'inet ' | sed -e 's/.*inet \([0-9]\+.[0-9]\+.[0-9]\+.[0-9]\+\).*/\1/'
 
+##Development mode
+Make sure your docker runs with following flags:
+
+    -H 172.17.42.1:2376
+    
+Substitute `172.17.42.1` with value of `getip docker0`. Without it you won't be able to expose local docker to docker manager.
+    
+Now start the machine with:
+    
+    env DOCKER0_IP=(getip docker0) docker-compose up --build agent backend manager
+    
+You can test with this:
+
+    curl -X POST localhost:3000/task/123/solution -H 'content-type: application/json' -d '{"paths":{}}'
+    //It will respond with: {"sessionId":"ba710905d2692e058c4909378be9314c03f034b05e03c65e0cff5642ad494c69"}
+    //so use sessionId in next command to get logs
+    curl localhost:3000/build/ba710905d2692e058c4909378be9314c03f034b05e03c65e0cff5642ad494c69/logs
+
+##A la Produciton
 Make sure your docker runs with following flags:
 
     --registry-mirror=http://192.168.99.1:5000 --insecure-registry 192.168.99.1:5000
@@ -27,7 +46,7 @@ First please export following env:
     export CA=$CERTS_DIR/ca.pem 
     export CERT=$CERTS_DIR/cert.pem 
     export CERT_KEY=$CERTS_DIR/key.pem
-    docker-compose up -d --build backend
+    docker-compose -f docker-compose-prod.yml up -d --build backend
     npm install
 
 Start docker registry so that Swarm agent can pull `realskill/fake-service` image:
@@ -53,7 +72,7 @@ Start Swarm agent inside docker machine:
 
 Push `fake service` and `task-executor-nodejs` image to repository
 
-    docker-compose build
+    docker-compose -f docker-compose-prod.yml build
     docker tag realskill/fake-service (getip vboxnet0):5000/realskill/fake-service
     docker tag realskill/task-executor-nodejs (getip vboxnet0):5000/realskill/task-executor-nodejs
     docker push (getip vboxnet0):5000/realskill/fake-service
